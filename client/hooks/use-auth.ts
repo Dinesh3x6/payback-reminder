@@ -39,12 +39,12 @@ export function useAuth() {
     fetchMe();
   }, [fetchMe]);
 
-  async function login(email: string, password: string) {
-    const { data } = await api.post("/auth/login", { email, password });
-    window.localStorage.setItem("pbr_token", data.token);
-    setUser(data.user);
-    router.push("/dashboard");
-  }
+async function login(email: string, password: string) {
+  const { data } = await api.post("/auth/login", { email, password });
+  window.localStorage.setItem("pbr_token", data.token);
+  setUser(data.user);
+  router.push("/dashboard");
+}
 
   async function signup(name: string, email: string, password: string) {
     const { data } = await api.post("/auth/signup", { name, email, password });
