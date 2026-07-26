@@ -75,18 +75,23 @@ if (!due) {
         note: `Repayment from ${borrower.name}`,
       });
 
-      await sendReminderEmail({
-        to: borrower.email,
-        borrowerName: borrower.name,
-        amount,
-        dueDate: borrower.dueDate,
-        qrCodeBuffer: qrBuffer,
-        upiLink,
-        note: borrower.notes ?? undefined,
-      });
+      const result = await sendReminderEmail({
+  to: borrower.email,
+  borrowerName: borrower.name,
+  amount: borrower.amount,
+  dueDate: borrower.dueDate,
+  qrCodeBuffer,
+  upiLink,
+  note: borrower.note,
+});
 
-      console.log(`[reminder] Email sent to ${borrower.email}`);
+console.log("[reminder] Resend response:", result);
 
+if ((result as any).error) {
+  console.error("[reminder] Resend error:", (result as any).error);
+} else {
+  console.log("[reminder] Email sent. Response:", result);
+}
       await prisma.$transaction([
         prisma.borrower.update({
           where: { id: borrower.id },
