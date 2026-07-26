@@ -41,17 +41,13 @@ export async function runReminderSweep() {
     `[reminder] Checking id=${borrower.id}, name=${borrower.name}, email=${borrower.email}`
   );
 
-  console.log(
-    `[reminder] DB value lastReminderSentAt=${borrower.lastReminderSentAt}`
-  );
+  
     const due = isDueForReminder(
   borrower.reminderFrequency,
   borrower.lastReminderSentAt
 );
 
-console.log(
-  `[reminder] Debug: name=${borrower.name}, frequency=${borrower.reminderFrequency}, lastSent=${borrower.lastReminderSentAt}, now=${new Date().toISOString()}, due=${due}`
-);
+
 
 if (!due) {
   console.log(`[reminder] Skipping ${borrower.name} - reminder not due`);
@@ -85,13 +81,10 @@ const result = await sendReminderEmail({
   note: borrower.notes ?? undefined, // your field is notes
 });
 
-console.log("[reminder] Resend response:", JSON.stringify(result, null, 2));
 
-if ((result as any)?.error) {
-  console.error("[reminder] Resend error:", (result as any).error);
-} else {
-  console.log("[reminder] Email sent. Response:", JSON.stringify(result, null, 2));
-}
+
+console.log(`[reminder] Email sent successfully to ${borrower.email}`);
+
       await prisma.$transaction([
         prisma.borrower.update({
           where: { id: borrower.id },
