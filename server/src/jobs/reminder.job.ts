@@ -38,7 +38,11 @@ export async function runReminderSweep() {
 
   for (const borrower of candidates) {
     console.log(
-    `[reminder] Checking ${borrower.name} (${borrower.email})`
+    `[reminder] Checking id=${borrower.id}, name=${borrower.name}, email=${borrower.email}`
+  );
+
+  console.log(
+    `[reminder] DB value lastReminderSentAt=${borrower.lastReminderSentAt}`
   );
     const due = isDueForReminder(
   borrower.reminderFrequency,
