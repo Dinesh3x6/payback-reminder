@@ -67,20 +67,29 @@ export async function sendReminderEmail(input: ReminderEmailInput) {
   const html = reminderHtml(input);
 
   if (env.emailProvider === "resend") {
-    const resend = getResend();
-    return resend.emails.send({
-      from: env.emailFrom,
-      to: input.to,
-      subject,
-      html,
-      attachments: [
-        {
-          filename: "upi-qr.png",
-          content: input.qrCodeBuffer.toString("base64"),
-        },
-      ],
-    });
+  const resend = getResend();
+
+  const response = await resend.emails.send({
+    from: env.emailFrom,
+    to: input.to,
+    subject,
+    html,
+    attachments: [
+      {
+        filename: "upi-qr.png",
+        content: input.qrCodeBuffer.toString("base64"),
+      },
+    ],
+  });
+
+  console.log("[Resend] Full response:", JSON.stringify(response, null, 2));
+
+  if (response.error) {
+    throw new Error(response.error.message);
   }
+
+  return response;
+}
 
   // nodemailer / SMTP fallback
   const transport = getSmtpTransport();
