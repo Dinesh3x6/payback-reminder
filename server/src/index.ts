@@ -6,7 +6,7 @@ import rateLimit from "express-rate-limit";
 
 import { env } from "@/config/env";
 import { errorHandler, notFoundHandler } from "@/middleware/error.middleware";
-import { scheduleReminderJob } from "@/jobs/reminder.job";
+import { scheduleReminderJob, runReminderSweep } from "@/jobs/reminder.job";
 
 import authRoutes from "@/routes/auth.routes";
 import borrowerRoutes from "@/routes/borrower.routes";
@@ -42,4 +42,9 @@ app.use(errorHandler);
 app.listen(env.port, () => {
   console.log(`🚀 PayBack Reminder API running on http://localhost:${env.port}`);
   scheduleReminderJob();
+
+    // Temporary test
+  runReminderSweep().catch((err) =>
+    console.error("[reminder] Manual sweep failed:", err)
+  );
 });

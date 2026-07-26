@@ -22,6 +22,7 @@ function isDueForReminder(frequency: string, lastSentAt: Date | null): boolean {
 
 /** Sends reminder emails for every eligible, unpaid borrower with an email on file. */
 export async function runReminderSweep() {
+  console.log("[reminder] Sweep started");
   const candidates = await prisma.borrower.findMany({
     where: {
       remindersActive: true,
@@ -30,12 +31,19 @@ export async function runReminderSweep() {
     },
     include: { user: true },
   });
+  console.log(`[reminder] Found ${candidates.length} eligible borrowers`);
 
   let sent = 0;
   let failed = 0;
 
   for (const borrower of candidates) {
-    if (!isDueForReminder(borrower.reminderFrequency, borrower.lastReminderSentAt)) continue;
+    console.log(
+    `[reminder] Checking ${borrower.name} (${borrower.email})`
+  );
+    if (!isDueForReminder(borrower.reminderFrequency, borrower.lastReminderSentAt)) {
+  console.log(`[reminder] Skipping ${borrower.name} - reminder not due`);
+  continue;
+}
     if (!borrower.email) continue;
 
     try {
@@ -63,6 +71,8 @@ export async function runReminderSweep() {
         upiLink,
         note: borrower.notes ?? undefined,
       });
+
+      console.log(`[reminder] Email sent to ${borrower.email}`);
 
       await prisma.$transaction([
         prisma.borrower.update({
@@ -95,6 +105,7 @@ export async function runReminderSweep() {
 /** Registers the daily cron schedule. Call once at server startup. */
 export function scheduleReminderJob() {
   cron.schedule(env.reminderCron, () => {
+     console.log("[reminder] Cron triggered");
     runReminderSweep().catch((err) => console.error("[reminder] Sweep crashed:", err));
   });
   console.log(`[reminder] Cron scheduled with expression "${env.reminderCron}"`);
