@@ -40,7 +40,16 @@ export async function runReminderSweep() {
     console.log(
     `[reminder] Checking ${borrower.name} (${borrower.email})`
   );
-    if (!isDueForReminder(borrower.reminderFrequency, borrower.lastReminderSentAt)) {
+    const due = isDueForReminder(
+  borrower.reminderFrequency,
+  borrower.lastReminderSentAt
+);
+
+console.log(
+  `[reminder] Debug: name=${borrower.name}, frequency=${borrower.reminderFrequency}, lastSent=${borrower.lastReminderSentAt}, now=${new Date().toISOString()}, due=${due}`
+);
+
+if (!due) {
   console.log(`[reminder] Skipping ${borrower.name} - reminder not due`);
   continue;
 }
